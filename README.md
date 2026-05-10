@@ -326,10 +326,12 @@ Se $Z^{h}=1$ entrambe le operazioni devono essere assegnate all'operatore $h$; q
 #### Eq (29) — Attivazione di $Z^{h}$ (limite superiore)
 
 $$
-\sum_{m \in M_{ip}} W^{hm}_{ip} + \sum_{m \in M_{jr}} W^{hm}_{jr} \leq 2 + L \cdot Z^h
+\sum_{m \in M_{ip}} W^{hm}_{ip} + \sum_{m \in M_{jr}} W^{hm}_{jr} \leq 1 + Z^h
 $$
 
-Quantificatori: come (28). Insieme alla (28) fissa $Z^{h}=1$ esattamente quando le due operazioni condividono l'operatore $h$.
+Quantificatori: come (28). Quando la somma vale $2$ (entrambe le operazioni assegnate all'operatore $h$), il vincolo richiede $Z^h \geq 1$, ovvero $Z^h = 1$. Quando la somma è $0$ o $1$, $Z^h$ può valere $0$ (e (28) lo forzerà a $0$). Insieme, (28) e (29) fissano $Z^h$ in modo univoco.
+
+*Differenza rispetto alla forma analoga (20) del paper:* l'analoga (20) del paper usa $\leq 2 + L \cdot Z_m$, che è banale perché la somma è già $\leq 2$ per definizione (ogni $W$ è binaria e ogni operazione è assegnata a una sola coppia). Per le macchine il paper compensa: (22) forza $X^m_{ipjr} + X^m_{jrip} = 0$ quando $Z_m=0$, e i disgiuntivi (17)–(18) diventano infeasible quando entrambe le operazioni sono su $m$ e nessuna le ordina. Per gli operatori questa "infeasibility forzante" non scatta perché (30) è un'uguaglianza con $Z^h$ e i disgiuntivi (26)–(27) si disattivano correttamente. Per ottenere lo stesso effetto via un'unica disuguaglianza usiamo la forma più stringente $\leq 1 + Z^h$.
 
 #### Eq (30) — Forza un ordinamento operatore quando $Z^{h} = 1$
 
@@ -349,25 +351,86 @@ $$
 
 Necessaria affinché (23) e (24) agiscano come definizioni di $\max(0, \cdot)$.
 
-### 2.6 Note di modellazione (ambiguità / chiarimenti dal paper)
+### 2.6 Note di modellazione (ambiguità e chiarimenti dal paper)
 
-I punti 1–3 e 5–7 segnalano ambiguità reali presenti nel paper; i punti 4 e 8 sono note di chiarimento per il lettore della tesi.
+Le note 1, 2, 5 documentano typo o sviste tipografiche evidenti nel paper pubblicato (Barak et al. 2024, p. 8–9) per le quali il nostro MD adotta la lettura coerente con il resto della formulazione. Le note 3, 6, 7 sono chiarimenti su scelte di modellazione lasciate implicite dagli autori. Le note 4 e 8 sono semplici aiuti di lettura per il lettore della tesi.
 
-1. **Pedice di $Y$ nelle eq (12)–(13).** Il rendering del PDF delle equazioni (12) e (13) mostra qualcosa che assomiglia a $Y_{jr}^{hmt}$, ma è incoerente con la definizione della variabile in §2.3.2 ($Y_{ip}^{hmt}$) e con l'indicizzazione del vincolo circostante (che è su $i, p$, non $j, r$). Anche la versione estratta dal testo riporta "jr". Abbiamo scritto $Y_{ip}^{hmt}$ in entrambe le equazioni perché (a) è quanto richiesto dalla definizione stessa della variabile, (b) il vincolo è quantificato $\forall i, p$, e (c) i membri di destra ($W_{ip}^{hm}$ in (12); $S_{ip}$ definita in (13)) sono anch'essi indicizzati su $(i,p)$. Sembra trattarsi di un errore di composizione nel paper pubblicato.
+1. **Pedice di $Y$ nelle eq (12)–(13) — typo di composizione.**
 
-2. **Quantificatori in (17) e (18).** Il paper scrive il quantificatore come $\forall i, p \in O_{ip};\ \forall j, r \in O_{jr};\ \forall t$, ma il vincolo non contiene alcun indice temporale $t$. Il $\forall t$ spurio è stato rimosso per chiarezza; trattiamo il vincolo come quantificato su coppie distinte di operazioni $(O_{ip}, O_{jr})$ che condividono almeno una macchina ammissibile.
+   *Cosa scrive il paper (p. 8):*
 
-3. **Definizione di $X_{ipjr}^{m}$.** §2.3.2 definisce: $X_{ipjr}^{m} = 1$ se $O_{ip}$ è processata prima di $O_{jr}$ sulla macchina $m$, $0$ altrimenti. Tipicamente significa *immediatamente* prima nell'interpretazione disgiuntiva flow-shop, dato che l'SDST $S_{ipjr}^{m}$ in (17)–(18) viene aggiunto come singolo setup. Il paper non afferma esplicitamente «immediatamente», ma la formulazione SDST standard lo richiede affinché il costo in $Q_2$ sia additivo sulle coppie consecutive.
+   $$
+   \sum_{t=1}^{T} Y_{jr}^{hmt} = W_{ip}^{hm} \quad\text{(eq 12, paper)}
+   $$
 
-4. **Ambito degli indici $r$ vs. $p$.** Sia $p$ sia $r$ vanno da $1$ a $P$ ma rappresentano indici di operazione che possono appartenere a job diversi ($i$ vs. $j$). La notazione è coerente ma leggermente compatta: $p$ è abbinato al job $i$, $r$ è abbinato al job $j$.
+   $$
+   S_{ip} = \sum_{h \in H_m} \sum_{m \in M_{ip}} \sum_{t=1}^{T} Y_{jr}^{hmt} \cdot t \quad\text{(eq 13, paper)}
+   $$
 
-5. **Quantificatore di $WL_m$.** L'eq (9) è scritta con quantificatore $\forall m \in M_{ip}$, ma $WL_m$ è una variabile per macchina indipendente da una specifica operazione; va letto come $\forall m \in M$ (qualsiasi macchina considerata candidata per almeno un'operazione). L'eq (10) usa il più ampio $\forall m \in M$, coerente con questa lettura.
+   Inoltre il testo descrittivo a p. 9 ripete il pedice: *"the two binary variables $W_{ip}^{hm}$ and $Y_{jr}^{hmt}$"*.
 
-6. **Costo in $Q_2$.** Il coefficiente del costo di setup è scritto come $S_{ipjr}^{m} \cdot STC_{ipjr}^{m}$, ovvero *tempo* di setup moltiplicato per *costo per unità di tempo* di setup, moltiplicato per l'indicatore $X_{ipjr}^{m}$. Ciò integra sull'effettiva durata del setup, quindi le unità sono coerenti.
+   *Cosa adottiamo nel MD:*
 
-7. **Idle dell'operatore in $Q_2$.** Il primo termine $C_{\max} - \sum_{i,p,m} W_{ip}^{hm} \cdot P_{ip}^{hm}$ rappresenta il tempo idle dell'operatore $h$. Si assume implicitamente che ogni operatore sia "disponibile" per l'intero orizzonte $[0, C_{\max}]$ e paghi il costo $\text{Cost}_h$ per unità di tempo per ogni tempo non speso a processare. Il tempo di setup non è sottratto — l'operatore è considerato idle durante i setup della macchina in questo termine di costo.
+   $$
+   \sum_{t=1}^{T} Y_{ip}^{hmt} = W_{ip}^{hm}, \quad S_{ip} = \sum_{h \in H_m} \sum_{m \in M_{ip}} \sum_{t=1}^{T} Y_{ip}^{hmt} \cdot t
+   $$
 
-8. **Valore di big-$L$.** Il paper non specifica un particolare valore per $L$; in pratica dovrebbe essere almeno un upper bound sull'orizzonte di pianificazione $T$ (ad es. somma di tutti i tempi di processamento e di setup). Un valore concreto raccomandato per l'esempio piccolo è dato in §6 di questo documento.
+   *Perché.* Tre argomenti indipendenti sostengono il typo:
+   - **(a)** §3.1.4 del paper definisce la variabile come $Y_{ip}^{hmt}$ — *"$=1$ if operation $O_{ip}$ is started at time $t$..."* — quindi il pedice $ip$ è quello canonico;
+   - **(b)** i quantificatori delle (12)–(13) sono $\forall i$ e $\forall p \in O_{ip}$ — non c'è alcun $(j, r)$ libero da legare;
+   - **(c)** il membro destro è indicizzato su $(i,p)$ in entrambe (in (12) c'è $W_{ip}^{hm}$, in (13) si definisce $S_{ip}$): se a sinistra ci fosse $(j,r)$, la (12) sarebbe banalmente inconsistente per ogni $i \neq j$ o $p \neq r$.
+
+2. **`∀t` spurio in (17)–(18) — quantificatore senza variabile.**
+
+   *Cosa scrive il paper (p. 9):* entrambe (17) e (18) sono chiuse dal quantificatore
+
+   $$
+   \forall i, p \in O_{ip};\ \forall j, r \in O_{jr};\ \forall t
+   $$
+
+   *Cosa adottiamo nel MD:*
+
+   $$
+   \forall i, p \in O_{ip};\ \forall j, r \in O_{jr}
+   $$
+
+   *Perché.* Nessuna delle variabili che compaiono in (17) o (18) è indicizzata sul tempo $t$:
+   - I tempi $S_{ip}$ e $C_{jr}$ sono variabili continue (definite in §2.3.1), non indicizzate da $t$.
+   - Le binarie $X_{ipjr}^{m}$ e $W_{ip}^{hm}$ non hanno pedice $t$.
+   - I parametri $S_{ipjr}^{m}$ e $L$ sono costanti.
+
+   Il $\forall t$ è quindi un quantificatore senza variabile da legare. Mantenerlo moltiplicherebbe inutilmente il vincolo per $T$ copie identiche e gonfierebbe artificialmente il modello LP. È probabile che sia un residuo del template usato per (12)–(13) (dove $Y_{ip}^{hmt}$ ha invece il pedice $t$ e il quantificatore ha senso). Lo rimuoviamo.
+
+3. **Definizione di $X_{ipjr}^{m}$: precedenza qualunque o immediata?** §3.1.4 definisce $X_{ipjr}^{m}=1$ se $O_{ip}$ *"is processed before"* $O_{jr}$ su $m$, senza precisare *immediatamente* prima. Il paper usa $X_{ipjr}^{m}$ in due ruoli: (i) in (17)–(22) come variabile di ordinamento disgiuntivo; (ii) in (7) come moltiplicatore del costo di setup $S_{ipjr}^{m} \cdot STC_{ipjr}^{m}$. Sotto la lettura *"precedenza qualunque"* il costo SDST verrebbe sommato per ogni coppia ordinata sulla stessa macchina, non solo per coppie consecutive — il che è coerente solo se $S_{ipjr}^{m}$ è interpretato come costo di transizione di sequenza (non come setup time fisico inserito in macchina). Per il modello DAINO adottiamo l'interpretazione standard SDST: $X_{ipjr}^{m}=1$ se $O_{ip}$ precede *immediatamente* $O_{jr}$ su $m$, così che $S_{ipjr}^{m}$ sia aggiunto una sola volta per coppia consecutiva e i ruoli "setup time" (in (17)–(18)) e "setup cost" (in (7)) siano coerenti. Questa è una scelta nostra di modellazione, non un fix di typo del paper.
+
+4. **Ambito degli indici $r$ vs. $p$.** Sebbene tutte le notazioni del paper usino $i, j$ per i job e $p, r$ per le posizioni dell'operazione all'interno del job, $p$ e $r$ vivono entrambi nello stesso intervallo $\{1, \dots, P\}$ ma sono "agganciati" rispettivamente a $i$ e $j$: una scrittura come $X_{ipjr}^{m}$ va letta come coppia di operazioni $(O_{ip}, O_{jr})$, non come indice a 4 dimensioni. Non è un'ambiguità ma una convenzione compatta del paper, mantenuta per fedeltà.
+
+5. **Quantificatore di $WL_m$ in (9) — typo di scope.**
+
+   *Cosa scrive il paper (p. 8):*
+
+   $$
+   WL_m = \sum_{h \in H_m} \sum_{i=1}^{I} \sum_{p \in O_{ip}} W_{ip}^{hm} \cdot P_{ip}^{hm} \quad \forall m \in M_{ip}
+   $$
+
+   *Cosa adottiamo come lettura:*
+
+   $$
+   \forall m \in M \quad (\text{equivalentemente: } \forall m \in \textstyle\bigcup_{i,p} M_{ip})
+   $$
+
+   *Perché.* Tre problemi con il quantificatore del paper:
+   - **(i)** $M_{ip}$ è l'insieme delle macchine ammissibili per la specifica operazione $O_{ip}$ — un insieme che dipende dalla coppia $(i,p)$. Ma $WL_m$ è una variabile per macchina (definita in §2.3.1), che esiste per ogni macchina $m$ del sistema, indipendentemente da una specifica operazione.
+   - **(ii)** Nella stessa (9), $i$ e $p$ sono variabili di sommatoria interna (legate dai $\sum_i \sum_p$); fuori dalla somma non c'è una coppia $(i,p)$ definita a cui ancorare $M_{ip}$. Il quantificatore è grammaticalmente sospeso.
+   - **(iii)** La (10) — che usa $WL_m$ subito dopo — è quantificata $\forall m \in M$, conferma indiretta che la lettura giusta è "per ogni macchina" senza dipendenza da $(i,p)$.
+
+   La lettura più stringente è $\forall m \in \bigcup_{i,p} M_{ip}$, cioè ogni macchina che è candidata per almeno una delle operazioni del problema. In pratica $\forall m \in M$.
+
+6. **Unità del costo SDST in $Q_2$.** Il termine setup nella (7) è $\sum_{m,i,j,p,r} S_{ipjr}^{m} \cdot STC_{ipjr}^{m} \cdot X_{ipjr}^{m}$. Poiché $S$ è tempo (unità $u_t$), $STC$ è costo per unità di tempo ($u_c/u_t$) e $X$ è binaria, il prodotto restituisce un costo (unità $u_c$). Non è un'ambiguità — è solo chiarimento di lettura, perché il paper non commenta esplicitamente le unità e il fatto che il costo di setup venga *integrato sulla durata* (anziché essere un flat fee per evento di setup, come pure è comune in letteratura SDST).
+
+7. **Idle dell'operatore in $Q_2$ — setup non sottratto.** Il primo termine di $Q_2$ è $\sum_h \text{Cost}_h \cdot \bigl(C_{\max} - \sum_{i,p,m} W_{ip}^{hm} \cdot P_{ip}^{hm}\bigr)$. La sottrazione include solo i tempi di processamento $P_{ip}^{hm}$ assegnati all'operatore $h$, non i tempi di setup $S_{ipjr}^{m}$. Questo implica due assunzioni di modellazione non discusse esplicitamente dal paper: (a) **disponibilità totale** — l'operatore è "presente" (e quindi pagato) per l'intero orizzonte $[0, C_{\max}]$, anche prima del primo job e dopo l'ultimo; (b) **setup come idle dell'operatore** — durante un setup di macchina l'operatore non è considerato "occupato" ai fini del costo, anche se in pratica un setup di solito richiede l'intervento manuale. Il costo del setup è già contabilizzato dal secondo termine $\sum S \cdot STC \cdot X$ via $STC$; per modellare un operatore *attivamente impegnato* durante i setup occorrerebbe aumentare $\text{Cost}_h$ o sottrarre anche $S$ nel primo termine. DAINO mantiene la convenzione del paper.
+
+8. **Valore di big-$L$.** Il paper non assegna un valore alla costante big-M $L$ che compare in (17)–(22) per linearizzare i vincoli disgiuntivi e gli on/off. Una scelta troppo larga deteriora il rilassamento LP (e quindi il branch-and-bound del solver MILP); una troppo stretta rende infeasible alcune soluzioni valide. Limite inferiore valido: $L \geq T = $ orizzonte di pianificazione, dove $T$ è un upper bound sul makespan, ad esempio $T = \sum_{i,p} \max_{h,m} P_{ip}^{hm} + \sum_{m,(ip),(jr)} S_{ipjr}^{m}$ (somma dei processing times massimi più tutti i setup). Per la fixture 4×3×2 (§3) raccomando $L \approx 200$ (vedi §6.1).
 
 ---
 
