@@ -83,7 +83,7 @@ Tutte le variabili continue qui definite sono vincolate a essere non negative ($
 
 ### 2.4 Funzioni obiettivo
 
-> La numerazione delle equazioni segue il paper pubblicato, dove le equazioni (1)–(5) fanno parte della rassegna della letteratura e non della formulazione del modello; il modello vero e proprio inizia dalla (6).
+> La numerazione delle equazioni segue il paper pubblicato. Le equazioni (1)–(5) NON appartengono al modello DRCFJSP-SDST: nel paper sono usate nella rassegna della letteratura (Sezione 2, p. 2) per presentare il *JSP classico* (job shop scheduling base) come riferimento: (1) minimizza il makespan, (2) non-negatività dei tempi di inizio, (3) precedenza tra operazioni, (4) capacità macchina disgiuntiva, (5) linearizzazione di (4) con variabile binaria + big-M. Il modello vero e proprio del paper — quello che DAINO deve risolvere — inizia dall'equazione (6) e arriva alla (25).
 
 #### Q₁ (eq 6) — minimizza le penalità di anticipo/ritardo
 
@@ -310,6 +310,65 @@ I punti 1–3 e 5–7 segnalano ambiguità reali presenti nel paper; i punti 4 e
 7. **Idle dell'operatore in $Q_2$.** Il primo termine $C_{\max} - \sum_{i,p,m} W_{ip}^{hm} \cdot P_{ip}^{hm}$ rappresenta il tempo idle dell'operatore $h$. Si assume implicitamente che ogni operatore sia "disponibile" per l'intero orizzonte $[0, C_{\max}]$ e paghi il costo $\text{Cost}_h$ per unità di tempo per ogni tempo non speso a processare. Il tempo di setup non è sottratto — l'operatore è considerato idle durante i setup della macchina in questo termine di costo.
 
 8. **Valore di big-$L$.** Il paper non specifica un particolare valore per $L$; in pratica dovrebbe essere almeno un upper bound sull'orizzonte di pianificazione $T$ (ad es. somma di tutti i tempi di processamento e di setup). Un valore concreto raccomandato per l'esempio piccolo è dato in §6 di questo documento.
+
+### 2.7 Vincoli aggiuntivi raccomandati (NON nel paper)
+
+Durante l'analisi del sistema (9)–(25) emergono vincoli classici del DRCFJSP che il paper di Barak et al. non formula esplicitamente. Li includiamo qui come parte del benchmark perché senza di essi il MILP può produrre soluzioni matematicamente ammissibili ma operativamente assurde — in particolare lo stesso operatore impegnato contemporaneamente su due macchine diverse. Sono numerati con prefisso **R** ("raccomandati") per distinguerli dalle equazioni del paper.
+
+#### Variabili decisionali aggiuntive
+
+| Simbolo | Descrizione |
+|---|---|
+| $X_{ipjr}^h$ | Binaria, $=1$ se l'operazione $O_{ip}$ è processata prima di $O_{jr}$ dall'operatore $h$, $0$ altrimenti |
+| $Z^h$ | Binaria ausiliaria, $=1$ se entrambe le operazioni $O_{ip}$ e $O_{jr}$ sono assegnate all'operatore $h$, $0$ altrimenti (definita per ciascuna coppia di operazioni distinte) |
+
+#### Eq (R1) — Capacità operatore: caso $X_{jrip}^h = 1$ (con possibile setup)
+
+$$
+S_{ip} \geq C_{jr} - L \left(1 - X^h_{jrip}\right) - L \left(2 - \sum_{m \in M_{ip}} W^{hm}_{ip} - \sum_{m \in M_{jr}} W^{hm}_{jr}\right)
+$$
+
+#### Eq (R2) — Capacità operatore: caso $X_{ipjr}^h = 1$
+
+$$
+S_{jr} \geq C_{ip} - L \left(1 - X^h_{ipjr}\right) - L \left(2 - \sum_{m \in M_{ip}} W^{hm}_{ip} - \sum_{m \in M_{jr}} W^{hm}_{jr}\right)
+$$
+
+Quantificatori per (R1) e (R2): $\forall h$ e per ciascuna coppia distinta di operazioni $(O_{ip}, O_{jr})$ servibili da $h$ (cioè $h$ appartiene sia a $H_m$ per qualche $m \in M_{ip}$ sia a $H_{m'}$ per qualche $m' \in M_{jr}$). Le sommatorie $\sum_m W^{hm}_{\cdot}$ riassumono "l'operatore $h$ è effettivamente assegnato all'operazione corrispondente".
+
+#### Eq (R3), (R4) — Attivazione di $Z^h$ (analoghe a (19), (20) ma per operatore)
+
+$$
+\sum_{m \in M_{ip}} W^{hm}_{ip} + \sum_{m \in M_{jr}} W^{hm}_{jr} \geq 2 - L \left(1 - Z^h\right)
+$$
+
+$$
+\sum_{m \in M_{ip}} W^{hm}_{ip} + \sum_{m \in M_{jr}} W^{hm}_{jr} \leq 2 + L \cdot Z^h
+$$
+
+#### Eq (R5) — Forza un ordinamento operatore quando $Z^h = 1$
+
+$$
+X^h_{ipjr} + X^h_{jrip} = Z^h
+$$
+
+(R3) e (R4) fissano $Z^h = 1$ esattamente quando entrambe le operazioni sono assegnate all'operatore $h$; (R5) impone che, in tal caso, esattamente una delle due variabili di ordinamento $X^h$ valga $1$, e che entrambe siano $0$ altrimenti.
+
+**Perché sono necessari.** I vincoli (17)–(22) del paper regolano solo la condivisione delle macchine. Senza (R1)–(R5), il MILP può produrre soluzioni in cui un operatore appare contemporaneamente su due macchine diverse — feasibility matematica ma infeasibility operativa. Il paper a p. 9 sostiene che (13), (17), (18) coprono "each machine and any single operator", ma la matematica copre soltanto le macchine: è un gap di formulazione, già segnalato dalla nota 5 di §2.6.
+
+#### Eq (R6) — Non-negatività esplicita delle variabili continue
+
+$$
+C_{\max},\ WL_{\max},\ WL_m,\ C_i,\ C_{ip},\ S_{ip},\ E_i,\ T_i \geq 0
+$$
+
+Implicito nel paper ("positive decision variables" in §2.3.1) ma utile esplicitare: (23) e (24) richiedono questi bounds per agire come definizioni di $\max(0, \cdot)$.
+
+#### Chiarimenti aggiuntivi (non vincoli MILP, ma necessari per implementare)
+
+1. **Orizzonte temporale $T$** — il paper indicizza $t \in \lbrace 1, \ldots, T \rbrace$ ma non definisce $T$. Va fissato come parametro $\geq$ somma di tutti i tempi di processamento e setup. Valore concreto per l'esempio piccolo in §6.2.
+2. **Big-$L$** — il paper non quantifica. Per coerenza con (R1)–(R4), $L$ deve essere $\geq$ upper bound del makespan + setup massimo. Vedi §6.1.
+3. **"Immediately before" implicito in $X_{ipjr}^m$** — la definizione di §2.3.2 dice "before", ma il costo SDST in $Q_2$ è additivo solo se "immediately before". Vedi nota 3 di §2.6.
 
 ---
 
