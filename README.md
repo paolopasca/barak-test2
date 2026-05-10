@@ -80,6 +80,8 @@ Tutte le variabili continue qui definite sono vincolate a essere non negative ($
 | $Y_{ip}^{hmt}$ | $=1$ se l'operazione $O_{ip}$ inizia al tempo $t$ usando l'operatore $h$ e la macchina $m$; $0$ altrimenti |
 | $X_{ipjr}^{m}$ | $=1$ se l'operazione $O_{ip}$ è processata prima dell'operazione $O_{jr}$ sulla macchina $m$; $0$ altrimenti |
 | $Z_m$ | $=1$ se $X_{ipjr}^{m}$ oppure $X_{jrip}^{m}$ vale $1$ (variabile ausiliaria che collega $X$ e $W$); $0$ altrimenti |
+| $X_{ipjr}^{h}$ | $=1$ se l'operazione $O_{ip}$ è processata prima dell'operazione $O_{jr}$ dall'operatore $h$; $0$ altrimenti (usata in (26)–(31)) |
+| $Z^{h}$ | $=1$ se entrambe le operazioni $O_{ip}$ e $O_{jr}$ sono assegnate all'operatore $h$; $0$ altrimenti (usata in (28)–(30)) |
 
 ### 2.4 Funzioni obiettivo
 
@@ -291,6 +293,62 @@ Quantificatori: $\forall i$.
 
 Il makespan $C_{\max}$ è almeno pari al tempo di completamento di ogni job; all'ottimo, è uguale al tempo di completamento del job più tardivo.
 
+I vincoli (26)–(31) che seguono completano la formulazione DRCFJSP aggiungendo la capacità operatore (analoga al disgiuntivo macchina (17)–(22)) e la non-negatività esplicita delle variabili continue.
+
+#### Eq (26) — Capacità operatore: caso $X_{jrip}^{h} = 1$
+
+$$
+S_{ip} \geq C_{jr} - L \left(1 - X^h_{jrip}\right) - L \left(2 - \sum_{m \in M_{ip}} W^{hm}_{ip} - \sum_{m \in M_{jr}} W^{hm}_{jr}\right)
+$$
+
+Quantificatori: $\forall h$ e per ciascuna coppia distinta di operazioni $(O_{ip}, O_{jr})$ servibili da $h$.
+
+Se due operazioni condividono lo stesso operatore $h$ e $O_{jr}$ precede $O_{ip}$ ($X_{jrip}^{h}=1$), l'inizio di $O_{ip}$ deve essere almeno pari al completamento di $O_{jr}$. I termini big-$L$ disattivano il vincolo quando le condizioni non sono verificate.
+
+#### Eq (27) — Capacità operatore: caso $X_{ipjr}^{h} = 1$ (simmetrico)
+
+$$
+S_{jr} \geq C_{ip} - L \left(1 - X^h_{ipjr}\right) - L \left(2 - \sum_{m \in M_{ip}} W^{hm}_{ip} - \sum_{m \in M_{jr}} W^{hm}_{jr}\right)
+$$
+
+Quantificatori: come (26). Controparte simmetrica.
+
+#### Eq (28) — Attivazione di $Z^{h}$ (limite inferiore)
+
+$$
+\sum_{m \in M_{ip}} W^{hm}_{ip} + \sum_{m \in M_{jr}} W^{hm}_{jr} \geq 2 - L \left(1 - Z^h\right)
+$$
+
+Quantificatori: $\forall h$; $\forall (O_{ip}, O_{jr})$ distinte.
+
+Se $Z^{h}=1$ entrambe le operazioni devono essere assegnate all'operatore $h$; quando $Z^{h}=0$ lo slack big-$L$ rende il vincolo banalmente soddisfatto.
+
+#### Eq (29) — Attivazione di $Z^{h}$ (limite superiore)
+
+$$
+\sum_{m \in M_{ip}} W^{hm}_{ip} + \sum_{m \in M_{jr}} W^{hm}_{jr} \leq 2 + L \cdot Z^h
+$$
+
+Quantificatori: come (28). Insieme alla (28) fissa $Z^{h}=1$ esattamente quando le due operazioni condividono l'operatore $h$.
+
+#### Eq (30) — Forza un ordinamento operatore quando $Z^{h} = 1$
+
+$$
+X^h_{ipjr} + X^h_{jrip} = Z^h
+$$
+
+Quantificatori: $\forall h$; $\forall (O_{ip}, O_{jr})$ distinte.
+
+Quando $Z^{h}=1$, esattamente una delle due variabili di ordinamento $X^{h}$ vale $1$ (l'altra è $0$): una delle due operazioni precede l'altra sull'operatore $h$. Quando $Z^{h}=0$, entrambe le $X^{h}$ valgono $0$.
+
+#### Eq (31) — Non-negatività esplicita delle variabili continue
+
+$$
+C_{\max},\ WL_{\max},\ WL_m,\ C_i,\ C_{ip},\ S_{ip},\ E_i,\ T_i \geq 0
+$$
+
+Necessaria affinché (23) e (24) agiscano come definizioni di $\max(0, \cdot)$.
+
 ### 2.6 Note di modellazione (ambiguità / chiarimenti dal paper)
 
 I punti 1–3 e 5–7 segnalano ambiguità reali presenti nel paper; i punti 4 e 8 sono note di chiarimento per il lettore della tesi.
@@ -310,65 +368,6 @@ I punti 1–3 e 5–7 segnalano ambiguità reali presenti nel paper; i punti 4 e
 7. **Idle dell'operatore in $Q_2$.** Il primo termine $C_{\max} - \sum_{i,p,m} W_{ip}^{hm} \cdot P_{ip}^{hm}$ rappresenta il tempo idle dell'operatore $h$. Si assume implicitamente che ogni operatore sia "disponibile" per l'intero orizzonte $[0, C_{\max}]$ e paghi il costo $\text{Cost}_h$ per unità di tempo per ogni tempo non speso a processare. Il tempo di setup non è sottratto — l'operatore è considerato idle durante i setup della macchina in questo termine di costo.
 
 8. **Valore di big-$L$.** Il paper non specifica un particolare valore per $L$; in pratica dovrebbe essere almeno un upper bound sull'orizzonte di pianificazione $T$ (ad es. somma di tutti i tempi di processamento e di setup). Un valore concreto raccomandato per l'esempio piccolo è dato in §6 di questo documento.
-
-### 2.7 Vincoli aggiuntivi raccomandati per la tesi
-
-Il sistema (9)–(25) regola la condivisione delle macchine ma non quella degli operatori. Per ottenere una formulazione DRCFJSP operativamente completa aggiungiamo qui i vincoli che impediscono allo stesso operatore di processare due operazioni contemporaneamente, più la non-negatività esplicita delle variabili continue. Sono numerati con prefisso **R** per distinguerli dalla numerazione del paper, ma sono ortogonali ad esso: aggiungerli non modifica nessuna delle equazioni esistenti.
-
-#### Variabili decisionali aggiuntive
-
-| Simbolo | Descrizione |
-|---|---|
-| $X_{ipjr}^h$ | Binaria, $=1$ se l'operazione $O_{ip}$ è processata prima di $O_{jr}$ dall'operatore $h$, $0$ altrimenti |
-| $Z^h$ | Binaria ausiliaria, $=1$ se entrambe le operazioni $O_{ip}$ e $O_{jr}$ sono assegnate all'operatore $h$, $0$ altrimenti (definita per ciascuna coppia di operazioni distinte) |
-
-#### Eq (R1) — Capacità operatore: caso $X_{jrip}^h = 1$ (con possibile setup)
-
-$$
-S_{ip} \geq C_{jr} - L \left(1 - X^h_{jrip}\right) - L \left(2 - \sum_{m \in M_{ip}} W^{hm}_{ip} - \sum_{m \in M_{jr}} W^{hm}_{jr}\right)
-$$
-
-#### Eq (R2) — Capacità operatore: caso $X_{ipjr}^h = 1$
-
-$$
-S_{jr} \geq C_{ip} - L \left(1 - X^h_{ipjr}\right) - L \left(2 - \sum_{m \in M_{ip}} W^{hm}_{ip} - \sum_{m \in M_{jr}} W^{hm}_{jr}\right)
-$$
-
-Quantificatori per (R1) e (R2): $\forall h$ e per ciascuna coppia distinta di operazioni $(O_{ip}, O_{jr})$ servibili da $h$ (cioè $h$ appartiene sia a $H_m$ per qualche $m \in M_{ip}$ sia a $H_{m'}$ per qualche $m' \in M_{jr}$). Le sommatorie $\sum_m W^{hm}_{\cdot}$ riassumono "l'operatore $h$ è effettivamente assegnato all'operazione corrispondente".
-
-#### Eq (R3), (R4) — Attivazione di $Z^h$ (analoghe a (19), (20) ma per operatore)
-
-$$
-\sum_{m \in M_{ip}} W^{hm}_{ip} + \sum_{m \in M_{jr}} W^{hm}_{jr} \geq 2 - L \left(1 - Z^h\right)
-$$
-
-$$
-\sum_{m \in M_{ip}} W^{hm}_{ip} + \sum_{m \in M_{jr}} W^{hm}_{jr} \leq 2 + L \cdot Z^h
-$$
-
-#### Eq (R5) — Forza un ordinamento operatore quando $Z^h = 1$
-
-$$
-X^h_{ipjr} + X^h_{jrip} = Z^h
-$$
-
-(R3) e (R4) fissano $Z^h = 1$ esattamente quando entrambe le operazioni sono assegnate all'operatore $h$; (R5) impone che, in tal caso, esattamente una delle due variabili di ordinamento $X^h$ valga $1$, e che entrambe siano $0$ altrimenti.
-
-**Perché aggiungerli.** I vincoli (17)–(22) regolano la sequenza di due operazioni che condividono la stessa macchina. (R1)–(R5) sono la controparte per gli operatori: se due operazioni condividono lo stesso operatore (anche su macchine diverse), una deve precedere l'altra. Senza questi vincoli il solver MILP potrebbe schedulare lo stesso operatore su due macchine in parallelo, soluzione feasible sul piano matematico ma non realizzabile sul piano operativo.
-
-#### Eq (R6) — Non-negatività esplicita delle variabili continue
-
-$$
-C_{\max},\ WL_{\max},\ WL_m,\ C_i,\ C_{ip},\ S_{ip},\ E_i,\ T_i \geq 0
-$$
-
-Già implicito nella formulazione "variabili continue positive" in §2.3.1, ma utile dichiarare esplicitamente: (23) e (24) richiedono questi bounds per agire come definizioni di $\max(0, \cdot)$.
-
-#### Chiarimenti aggiuntivi (non vincoli MILP, ma necessari per implementare)
-
-1. **Orizzonte temporale $T$** — l'indice $t \in \lbrace 1, \ldots, T \rbrace$ richiede di fissare $T$ come parametro. Valore raccomandato: $\geq$ somma di tutti i tempi di processamento e setup (upper bound sicuro sul makespan). Valore concreto per l'esempio piccolo in §6.2.
-2. **Big-$L$** — per coerenza con (R1)–(R4), $L$ va scelto $\geq$ upper bound del makespan + setup massimo. Valore concreto in §6.1.
-3. **"Immediately before" implicito in $X_{ipjr}^m$** — interpretazione necessaria perché il costo SDST in $Q_2$ sia additivo solo sulle coppie consecutive. Vedi nota 3 di §2.6.
 
 ---
 
