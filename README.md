@@ -401,7 +401,19 @@ Le note 1, 2, 5 documentano typo o sviste tipografiche evidenti nel paper pubbli
 
    Il $\forall t$ è quindi un quantificatore senza variabile da legare. Mantenerlo moltiplicherebbe inutilmente il vincolo per $T$ copie identiche e gonfierebbe artificialmente il modello LP. È probabile che sia un residuo del template usato per (12)–(13) (dove $Y_{ip}^{hmt}$ ha invece il pedice $t$ e il quantificatore ha senso). Lo rimuoviamo.
 
-3. **Definizione di $X_{ipjr}^{m}$: precedenza qualunque o immediata?** §3.1.4 definisce $X_{ipjr}^{m}=1$ se $O_{ip}$ *"is processed before"* $O_{jr}$ su $m$, senza precisare *immediatamente* prima. Il paper usa $X_{ipjr}^{m}$ in due ruoli: (i) in (17)–(22) come variabile di ordinamento disgiuntivo; (ii) in (7) come moltiplicatore del costo di setup $S_{ipjr}^{m} \cdot STC_{ipjr}^{m}$. Sotto la lettura *"precedenza qualunque"* il costo SDST verrebbe sommato per ogni coppia ordinata sulla stessa macchina, non solo per coppie consecutive — il che è coerente solo se $S_{ipjr}^{m}$ è interpretato come costo di transizione di sequenza (non come setup time fisico inserito in macchina). Per il modello DAINO adottiamo l'interpretazione standard SDST: $X_{ipjr}^{m}=1$ se $O_{ip}$ precede *immediatamente* $O_{jr}$ su $m$, così che $S_{ipjr}^{m}$ sia aggiunto una sola volta per coppia consecutiva e i ruoli "setup time" (in (17)–(18)) e "setup cost" (in (7)) siano coerenti. Questa è una scelta nostra di modellazione, non un fix di typo del paper.
+3. **Definizione di $X_{ipjr}^{m}$: precedenza qualunque o immediata?**
+
+   *Cosa dice il paper:* §3.1.4 definisce $X_{ipjr}^{m}=1$ se $O_{ip}$ *"is processed before"* $O_{jr}$ sulla macchina $m$. Non è specificato se sia "subito prima" (consecutive) o solo "prima a un certo punto" (precedenza qualunque).
+
+   *Perché conta.* La stessa $X_{ipjr}^{m}$ è usata in due ruoli diversi:
+   - in (17)–(18) come variabile di ordinamento disgiuntivo per scrivere il vincolo di non-sovrapposizione di due operazioni sulla stessa macchina;
+   - in (7) come moltiplicatore del costo di setup: $\sum S_{ipjr}^{m} \cdot STC_{ipjr}^{m} \cdot X_{ipjr}^{m}$.
+
+   *Esempio del problema.* Considera una macchina su cui finiscono in ordine temporale tre operazioni $A \to B \to C$. Sotto la lettura *"precedenza qualunque"* avremmo $X_{AB}^{m} = X_{AC}^{m} = X_{BC}^{m} = 1$ (tutte le tre coppie ordinate). Il costo (7) sommerebbe quindi $S_{AB} \cdot STC + S_{AC} \cdot STC + S_{BC} \cdot STC$ — tre setup pagati, ma fisicamente i setup tra le operazioni sono solo due ($A \to B$ e $B \to C$). Inoltre $S_{AC}^{m}$ non è ben definito come tempo di setup: tra $A$ e $C$ non c'è una transizione diretta, c'è $B$ in mezzo.
+
+   *Cosa adottiamo nel MD.* $X_{ipjr}^{m}=1$ se $O_{ip}$ precede **immediatamente** $O_{jr}$ sulla macchina $m$ (cioè senza altre operazioni tra le due). Nello stesso esempio: $X_{AB}^{m} = X_{BC}^{m} = 1$ e $X_{AC}^{m} = 0$. Il costo è $S_{AB} \cdot STC + S_{BC} \cdot STC$, fisicamente coerente, e $S_{ipjr}^{m}$ è il setup time inserito in macchina tra le due op consecutive.
+
+   *Perché è una scelta, non un fix.* Il paper letteralmente non dice "immediately". È quindi una nostra scelta di modellazione — quella standard nella letteratura SDST — che rende coerenti il ruolo di setup time (in (17)–(18)) e di setup cost (in (7)).
 
 4. **Ambito degli indici $r$ vs. $p$.** Sebbene tutte le notazioni del paper usino $i, j$ per i job e $p, r$ per le posizioni dell'operazione all'interno del job, $p$ e $r$ vivono entrambi nello stesso intervallo $\{1, \dots, P\}$ ma sono "agganciati" rispettivamente a $i$ e $j$: una scrittura come $X_{ipjr}^{m}$ va letta come coppia di operazioni $(O_{ip}, O_{jr})$, non come indice a 4 dimensioni. Non è un'ambiguità ma una convenzione compatta del paper, mantenuta per fedeltà.
 
@@ -426,9 +438,32 @@ Le note 1, 2, 5 documentano typo o sviste tipografiche evidenti nel paper pubbli
 
    La lettura più stringente è $\forall m \in \bigcup_{i,p} M_{ip}$, cioè ogni macchina che è candidata per almeno una delle operazioni del problema. In pratica $\forall m \in M$.
 
-6. **Unità del costo SDST in $Q_2$.** Il termine setup nella (7) è $\sum_{m,i,j,p,r} S_{ipjr}^{m} \cdot STC_{ipjr}^{m} \cdot X_{ipjr}^{m}$. Poiché $S$ è tempo (unità $u_t$), $STC$ è costo per unità di tempo ($u_c/u_t$) e $X$ è binaria, il prodotto restituisce un costo (unità $u_c$). Non è un'ambiguità — è solo chiarimento di lettura, perché il paper non commenta esplicitamente le unità e il fatto che il costo di setup venga *integrato sulla durata* (anziché essere un flat fee per evento di setup, come pure è comune in letteratura SDST).
+6. **Unità del costo SDST in $Q_2$ — fee proporzionale al tempo, non flat.**
 
-7. **Idle dell'operatore in $Q_2$ — setup non sottratto.** Il primo termine di $Q_2$ è $\sum_h \text{Cost}_h \cdot \bigl(C_{\max} - \sum_{i,p,m} W_{ip}^{hm} \cdot P_{ip}^{hm}\bigr)$. La sottrazione include solo i tempi di processamento $P_{ip}^{hm}$ assegnati all'operatore $h$, non i tempi di setup $S_{ipjr}^{m}$. Questo implica due assunzioni di modellazione non discusse esplicitamente dal paper: (a) **disponibilità totale** — l'operatore è "presente" (e quindi pagato) per l'intero orizzonte $[0, C_{\max}]$, anche prima del primo job e dopo l'ultimo; (b) **setup come idle dell'operatore** — durante un setup di macchina l'operatore non è considerato "occupato" ai fini del costo, anche se in pratica un setup di solito richiede l'intervento manuale. Il costo del setup è già contabilizzato dal secondo termine $\sum S \cdot STC \cdot X$ via $STC$; per modellare un operatore *attivamente impegnato* durante i setup occorrerebbe aumentare $\text{Cost}_h$ o sottrarre anche $S$ nel primo termine. DAINO mantiene la convenzione del paper.
+   *Termine in questione (eq 7):* $\sum_{m,i,j,p,r} S_{ipjr}^{m} \cdot STC_{ipjr}^{m} \cdot X_{ipjr}^{m}$.
+
+   *Analisi dimensionale.* $S$ è un tempo (unità $u_t$), $STC$ è un costo per unità di tempo ($u_c / u_t$), $X$ è binaria (adimensionale). Il prodotto restituisce un costo (unità $u_c$). Le unità tornano.
+
+   *Esempio numerico (4×3×2).* Tra Job 1 → Job 2 su Macchina 1: setup time $S_{1\to2}^{M1} = 1$ unità di tempo, $STC^{M1} = 10$ \$/unità (cf. §3.5). Quando $X_{1\to2}^{M1}=1$, il costo aggiunto è $1 \cdot 10 \cdot 1 = 10\$$. Se invece il setup costasse "una tantum" indipendentemente dalla durata, il termine in (7) sarebbe $STC \cdot X$ senza $S$.
+
+   *Implicazione.* Setup più lunghi costano di più (linearmente). Questa è una scelta di modellazione frequente ma non universale nella letteratura SDST: alcuni autori usano un flat fee per evento di setup. DAINO mantiene la formulazione del paper.
+
+7. **Idle dell'operatore in $Q_2$ — setup non sottratto.**
+
+   *Termine in questione (primo addendo di eq 7):*
+
+   $$
+   \sum_h \text{Cost}_h \cdot \Bigl(C_{\max} - \sum_{i,p,m} W_{ip}^{hm} \cdot P_{ip}^{hm}\Bigr)
+   $$
+
+   *Lettura.* Per ciascun operatore $h$ si pagano $\text{Cost}_h$ \$ per unità di tempo per tutto il tempo *non* speso a processare. Il tempo speso a processare è $\sum W \cdot P$ (solo processing time, non setup).
+
+   *Cosa implica.* Due assunzioni di modellazione non rese esplicite dal paper:
+
+   - **(a) Disponibilità totale dell'operatore.** L'operatore è "presente" (e quindi pagato) per l'intero orizzonte $[0, C_{\max}]$, sia prima del suo primo job sia dopo l'ultimo. Esempio: se $C_{\max}=14$ e l'operatore $h=1$ lavora $P$ totale $= 9$, paga $\text{Cost}_1 \cdot (14 - 9) = 10 \cdot 5 = 50\$$ di idle.
+   - **(b) Setup conta come idle.** Durante un setup di macchina l'operatore *non* è considerato occupato ai fini del costo idle, anche se nella pratica un setup spesso richiede l'intervento manuale (montare un attrezzo, cambiare un programma). Il setup time $S$ non appare nel termine sottratto.
+
+   *Perché funziona comunque.* Il costo del setup è già contabilizzato nel secondo termine di $Q_2$ via $STC$ (vedi nota 6). Se vuoi modellare un operatore *attivamente impegnato durante i setup*, devi cambiare la formulazione: aumentare $\text{Cost}_h$, oppure sottrarre anche $\sum S^m \cdot X^m$ nel primo termine. DAINO mantiene la convenzione del paper.
 
 8. **Valore di big-$L$.** Il paper non assegna un valore alla costante big-M $L$ che compare in (17)–(22) per linearizzare i vincoli disgiuntivi e gli on/off. Una scelta troppo larga deteriora il rilassamento LP (e quindi il branch-and-bound del solver MILP); una troppo stretta rende infeasible alcune soluzioni valide. Limite inferiore valido: $L \geq T = $ orizzonte di pianificazione, dove $T$ è un upper bound sul makespan, ad esempio $T = \sum_{i,p} \max_{h,m} P_{ip}^{hm} + \sum_{m,(ip),(jr)} S_{ipjr}^{m}$ (somma dei processing times massimi più tutti i setup). Per la fixture 4×3×2 (§3) raccomando $L \approx 200$ (vedi §6.1).
 
