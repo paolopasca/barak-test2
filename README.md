@@ -311,9 +311,9 @@ I punti 1–3 e 5–7 segnalano ambiguità reali presenti nel paper; i punti 4 e
 
 8. **Valore di big-$L$.** Il paper non specifica un particolare valore per $L$; in pratica dovrebbe essere almeno un upper bound sull'orizzonte di pianificazione $T$ (ad es. somma di tutti i tempi di processamento e di setup). Un valore concreto raccomandato per l'esempio piccolo è dato in §6 di questo documento.
 
-### 2.7 Vincoli aggiuntivi raccomandati (NON nel paper)
+### 2.7 Vincoli aggiuntivi raccomandati per la tesi
 
-Durante l'analisi del sistema (9)–(25) emergono vincoli classici del DRCFJSP che il paper di Barak et al. non formula esplicitamente. Li includiamo qui come parte del benchmark perché senza di essi il MILP può produrre soluzioni matematicamente ammissibili ma operativamente assurde — in particolare lo stesso operatore impegnato contemporaneamente su due macchine diverse. Sono numerati con prefisso **R** ("raccomandati") per distinguerli dalle equazioni del paper.
+Il sistema (9)–(25) regola la condivisione delle macchine ma non quella degli operatori. Per ottenere una formulazione DRCFJSP operativamente completa aggiungiamo qui i vincoli che impediscono allo stesso operatore di processare due operazioni contemporaneamente, più la non-negatività esplicita delle variabili continue. Sono numerati con prefisso **R** per distinguerli dalla numerazione del paper, ma sono ortogonali ad esso: aggiungerli non modifica nessuna delle equazioni esistenti.
 
 #### Variabili decisionali aggiuntive
 
@@ -354,7 +354,7 @@ $$
 
 (R3) e (R4) fissano $Z^h = 1$ esattamente quando entrambe le operazioni sono assegnate all'operatore $h$; (R5) impone che, in tal caso, esattamente una delle due variabili di ordinamento $X^h$ valga $1$, e che entrambe siano $0$ altrimenti.
 
-**Perché sono necessari.** I vincoli (17)–(22) del paper regolano solo la condivisione delle macchine. Senza (R1)–(R5), il MILP può produrre soluzioni in cui un operatore appare contemporaneamente su due macchine diverse — feasibility matematica ma infeasibility operativa. Il paper a p. 9 sostiene che (13), (17), (18) coprono "each machine and any single operator", ma la matematica copre soltanto le macchine: è un gap di formulazione, già segnalato dalla nota 5 di §2.6.
+**Perché aggiungerli.** I vincoli (17)–(22) regolano la sequenza di due operazioni che condividono la stessa macchina. (R1)–(R5) sono la controparte per gli operatori: se due operazioni condividono lo stesso operatore (anche su macchine diverse), una deve precedere l'altra. Senza questi vincoli il solver MILP potrebbe schedulare lo stesso operatore su due macchine in parallelo, soluzione feasible sul piano matematico ma non realizzabile sul piano operativo.
 
 #### Eq (R6) — Non-negatività esplicita delle variabili continue
 
@@ -362,13 +362,13 @@ $$
 C_{\max},\ WL_{\max},\ WL_m,\ C_i,\ C_{ip},\ S_{ip},\ E_i,\ T_i \geq 0
 $$
 
-Implicito nel paper ("positive decision variables" in §2.3.1) ma utile esplicitare: (23) e (24) richiedono questi bounds per agire come definizioni di $\max(0, \cdot)$.
+Già implicito nella formulazione "variabili continue positive" in §2.3.1, ma utile dichiarare esplicitamente: (23) e (24) richiedono questi bounds per agire come definizioni di $\max(0, \cdot)$.
 
 #### Chiarimenti aggiuntivi (non vincoli MILP, ma necessari per implementare)
 
-1. **Orizzonte temporale $T$** — il paper indicizza $t \in \lbrace 1, \ldots, T \rbrace$ ma non definisce $T$. Va fissato come parametro $\geq$ somma di tutti i tempi di processamento e setup. Valore concreto per l'esempio piccolo in §6.2.
-2. **Big-$L$** — il paper non quantifica. Per coerenza con (R1)–(R4), $L$ deve essere $\geq$ upper bound del makespan + setup massimo. Vedi §6.1.
-3. **"Immediately before" implicito in $X_{ipjr}^m$** — la definizione di §2.3.2 dice "before", ma il costo SDST in $Q_2$ è additivo solo se "immediately before". Vedi nota 3 di §2.6.
+1. **Orizzonte temporale $T$** — l'indice $t \in \lbrace 1, \ldots, T \rbrace$ richiede di fissare $T$ come parametro. Valore raccomandato: $\geq$ somma di tutti i tempi di processamento e setup (upper bound sicuro sul makespan). Valore concreto per l'esempio piccolo in §6.2.
+2. **Big-$L$** — per coerenza con (R1)–(R4), $L$ va scelto $\geq$ upper bound del makespan + setup massimo. Valore concreto in §6.1.
+3. **"Immediately before" implicito in $X_{ipjr}^m$** — interpretazione necessaria perché il costo SDST in $Q_2$ sia additivo solo sulle coppie consecutive. Vedi nota 3 di §2.6.
 
 ---
 
