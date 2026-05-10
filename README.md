@@ -46,9 +46,9 @@
 
 | Simbolo | Descrizione |
 |---|---|
-| $P^{hm}_{ip}$ | Tempo di processamento dell'operazione $O_{ip}$ sulla macchina $m$ con l'operatore $h$ |
-| $S^{m}_{ipjr}$ | Tempo di setup sulla macchina $m$ quando l'operazione $p$ del job $i$ è processata immediatamente prima dell'operazione $r$ del job $j$ sulla stessa macchina |
-| $STC^{m}_{ipjr}$ | Costo di setup per unità di tempo per la stessa transizione (operazione $O_{ip}$ prima di $O_{jr}$ sulla macchina $m$) |
+| $P_{ip}^{hm}$ | Tempo di processamento dell'operazione $O_{ip}$ sulla macchina $m$ con l'operatore $h$ |
+| $S_{ipjr}^{m}$ | Tempo di setup sulla macchina $m$ quando l'operazione $p$ del job $i$ è processata immediatamente prima dell'operazione $r$ del job $j$ sulla stessa macchina |
+| $STC_{ipjr}^{m}$ | Costo di setup per unità di tempo per la stessa transizione (operazione $O_{ip}$ prima di $O_{jr}$ sulla macchina $m$) |
 | $\text{Cost}_h$ | Costo idle dell'operatore $h$ per unità di tempo |
 | $[Dl_i,\ Du_i]$ | Finestra di due date per il job $i$ (limite inferiore / superiore) |
 | $\beta_i$ | Penalità di anticipo per il job $i$ per unità di tempo |
@@ -76,10 +76,10 @@ Tutte le variabili continue qui definite sono vincolate a essere non negative ($
 
 | Simbolo | Descrizione |
 |---|---|
-| $W^{hm}_{ip}$ | $=1$ se l'operatore $h$ e la macchina $m$ sono selezionati per eseguire l'operazione $O_{ip}$; $0$ altrimenti |
-| $Y^{hmt}_{ip}$ | $=1$ se l'operazione $O_{ip}$ inizia al tempo $t$ usando l'operatore $h$ e la macchina $m$; $0$ altrimenti |
-| $X^{m}_{ipjr}$ | $=1$ se l'operazione $O_{ip}$ è processata prima dell'operazione $O_{jr}$ sulla macchina $m$; $0$ altrimenti |
-| $Z_m$ | $=1$ se $X^{m}_{ipjr}$ oppure $X^{m}_{jrip}$ vale $1$ (variabile ausiliaria che collega $X$ e $W$); $0$ altrimenti |
+| $W_{ip}^{hm}$ | $=1$ se l'operatore $h$ e la macchina $m$ sono selezionati per eseguire l'operazione $O_{ip}$; $0$ altrimenti |
+| $Y_{ip}^{hmt}$ | $=1$ se l'operazione $O_{ip}$ inizia al tempo $t$ usando l'operatore $h$ e la macchina $m$; $0$ altrimenti |
+| $X_{ipjr}^{m}$ | $=1$ se l'operazione $O_{ip}$ è processata prima dell'operazione $O_{jr}$ sulla macchina $m$; $0$ altrimenti |
+| $Z_m$ | $=1$ se $X_{ipjr}^{m}$ oppure $X_{jrip}^{m}$ vale $1$ (variabile ausiliaria che collega $X$ e $W$); $0$ altrimenti |
 
 ### 2.4 Funzioni obiettivo
 
@@ -151,7 +151,7 @@ $$
 
 Quantificatori: $\forall i ,  p \in O_{ip}; m \in M_{ip}; h \in H_m$.
 
-Se l'operazione $O_{ip}$ è assegnata alla coppia $(h,m)$ (cioè $W^{hm}_{ip}=1$), allora deve iniziare esattamente in un istante temporale $t$; altrimenti non viene mai avviata da quella coppia.
+Se l'operazione $O_{ip}$ è assegnata alla coppia $(h,m)$ (cioè $W_{ip}^{hm}=1$), allora deve iniziare esattamente in un istante temporale $t$; altrimenti non viene mai avviata da quella coppia.
 
 #### Eq (13) — Definizione del tempo di inizio
 
@@ -193,7 +193,7 @@ Quantificatori: $\forall i ,  p \in O_{ip}$.
 
 Il tempo di completamento del job $i$ è almeno pari al tempo di completamento di ciascuna delle sue operazioni (quindi è uguale a quello dell'ultima).
 
-#### Eq (17) — Sequenziamento disgiuntivo (caso $X^{m}_{jrip}=1$, con SDST)
+#### Eq (17) — Sequenziamento disgiuntivo (caso $X_{jrip}^{m}=1$, con SDST)
 
 $$
 \begin{aligned}
@@ -205,9 +205,9 @@ $$
 
 Quantificatori: $\forall i, p \in O_{ip}$; $\forall j, r \in O_{jr}$. Le sommatorie $\sum_{h,m \in M_{ip}}$ stanno per $\sum_{m \in M_{ip}} \sum_{h \in H_m}$.
 
-Se entrambe le operazioni $O_{ip}$ e $O_{jr}$ sono assegnate a una macchina comune e $O_{jr}$ precede $O_{ip}$ su quella macchina ($X^{m}_{jrip}=1$), allora l'inizio di $O_{ip}$ deve essere almeno pari al completamento di $O_{jr}$ più il tempo di setup dipendente dalla sequenza $S^{m}_{jrip}$. I termini big-$L$ rilassano il vincolo quando la precondizione non è verificata (macchine diverse o ordinamento opposto).
+Se entrambe le operazioni $O_{ip}$ e $O_{jr}$ sono assegnate a una macchina comune e $O_{jr}$ precede $O_{ip}$ su quella macchina ($X_{jrip}^{m}=1$), allora l'inizio di $O_{ip}$ deve essere almeno pari al completamento di $O_{jr}$ più il tempo di setup dipendente dalla sequenza $S_{jrip}^{m}$. I termini big-$L$ rilassano il vincolo quando la precondizione non è verificata (macchine diverse o ordinamento opposto).
 
-#### Eq (18) — Sequenziamento disgiuntivo (caso $X^{m}_{ipjr}=1$, con SDST)
+#### Eq (18) — Sequenziamento disgiuntivo (caso $X_{ipjr}^{m}=1$, con SDST)
 
 $$
 \begin{aligned}
@@ -219,7 +219,7 @@ $$
 
 Quantificatori: $\forall i, p \in O_{ip}$; $\forall j, r \in O_{jr}$.
 
-Controparte simmetrica della (17): se entrambe le operazioni sono assegnate a una macchina comune e $O_{ip}$ precede $O_{jr}$ ($X^{m}_{ipjr}=1$), allora $O_{jr}$ non può iniziare finché $O_{ip}$ non è stata completata più l'SDST $S^{m}_{ipjr}$. I termini big-$L$ disattivano il vincolo quando le condizioni di assegnazione o ordinamento non si applicano.
+Controparte simmetrica della (17): se entrambe le operazioni sono assegnate a una macchina comune e $O_{ip}$ precede $O_{jr}$ ($X_{ipjr}^{m}=1$), allora $O_{jr}$ non può iniziare finché $O_{ip}$ non è stata completata più l'SDST $S_{ipjr}^{m}$. I termini big-$L$ disattivano il vincolo quando le condizioni di assegnazione o ordinamento non si applicano.
 
 #### Eq (19) — Attivazione di $Z_m$ quando entrambe le operazioni sono sulla macchina $m$ (limite inferiore)
 
@@ -249,7 +249,7 @@ $$
 
 Quantificatori: $\forall m \in M_{ip} \cap M_{jr}; \forall i,p \in O_{ip}; \forall j,r \in O_{jr}$.
 
-Quando le due operazioni condividono la macchina $m$ ($Z_m=1$), esattamente una delle due variabili di ordinamento $X^{m}_{ipjr}, X^{m}_{jrip}$ vale $1$ (l'altra è $0$): un'operazione deve precedere l'altra.
+Quando le due operazioni condividono la macchina $m$ ($Z_m=1$), esattamente una delle due variabili di ordinamento $X_{ipjr}^{m}, X_{jrip}^{m}$ vale $1$ (l'altra è $0$): un'operazione deve precedere l'altra.
 
 #### Eq (22) — Disabilita gli ordinamenti quando le operazioni non sono co-localizzate
 
@@ -259,7 +259,7 @@ $$
 
 Quantificatori: $\forall m \in M_{ip} \cap M_{jr}; \forall i,p \in O_{ip}; \forall j,r \in O_{jr}$.
 
-Se le due operazioni *non* sono entrambe sulla macchina $m$ ($Z_m=0$), allora sia $X^{m}_{ipjr}$ sia $X^{m}_{jrip}$ devono essere $0$; il sequenziamento è privo di significato. Quando $Z_m=1$ lo slack big-$L$ rende la (21) il vincolo attivo.
+Se le due operazioni *non* sono entrambe sulla macchina $m$ ($Z_m=0$), allora sia $X_{ipjr}^{m}$ sia $X_{jrip}^{m}$ devono essere $0$; il sequenziamento è privo di significato. Quando $Z_m=1$ lo slack big-$L$ rende la (21) il vincolo attivo.
 
 #### Eq (23) — Definizione di anticipo (earliness)
 
@@ -295,19 +295,19 @@ Il makespan $C_{\max}$ è almeno pari al tempo di completamento di ogni job; all
 
 I punti 1–3 e 5–7 segnalano ambiguità reali presenti nel paper; i punti 4 e 8 sono note di chiarimento per il lettore della tesi.
 
-1. **Pedice di $Y$ nelle eq (12)–(13).** Il rendering del PDF delle equazioni (12) e (13) mostra qualcosa che assomiglia a $Y^{hmt}_{jr}$, ma è incoerente con la definizione della variabile in §2.3.2 ($Y^{hmt}_{ip}$) e con l'indicizzazione del vincolo circostante (che è su $i, p$, non $j, r$). Anche la versione estratta dal testo riporta "jr". Abbiamo scritto $Y^{hmt}_{ip}$ in entrambe le equazioni perché (a) è quanto richiesto dalla definizione stessa della variabile, (b) il vincolo è quantificato $\forall i, p$, e (c) i membri di destra ($W^{hm}_{ip}$ in (12); $S_{ip}$ definita in (13)) sono anch'essi indicizzati su $(i,p)$. Sembra trattarsi di un errore di composizione nel paper pubblicato.
+1. **Pedice di $Y$ nelle eq (12)–(13).** Il rendering del PDF delle equazioni (12) e (13) mostra qualcosa che assomiglia a $Y_{jr}^{hmt}$, ma è incoerente con la definizione della variabile in §2.3.2 ($Y_{ip}^{hmt}$) e con l'indicizzazione del vincolo circostante (che è su $i, p$, non $j, r$). Anche la versione estratta dal testo riporta "jr". Abbiamo scritto $Y_{ip}^{hmt}$ in entrambe le equazioni perché (a) è quanto richiesto dalla definizione stessa della variabile, (b) il vincolo è quantificato $\forall i, p$, e (c) i membri di destra ($W_{ip}^{hm}$ in (12); $S_{ip}$ definita in (13)) sono anch'essi indicizzati su $(i,p)$. Sembra trattarsi di un errore di composizione nel paper pubblicato.
 
 2. **Quantificatori in (17) e (18).** Il paper scrive il quantificatore come $\forall i, p \in O_{ip};\ \forall j, r \in O_{jr};\ \forall t$, ma il vincolo non contiene alcun indice temporale $t$. Il $\forall t$ spurio è stato rimosso per chiarezza; trattiamo il vincolo come quantificato su coppie distinte di operazioni $(O_{ip}, O_{jr})$ che condividono almeno una macchina ammissibile.
 
-3. **Definizione di $X^{m}_{ipjr}$.** §2.3.2 dice "$X^{m}_{ipjr} = 1$ if $O_{ip}$ is processed before $O_{jr}$ on machine $m$". Tipicamente significa *immediatamente* prima nell'interpretazione disgiuntiva flow-shop, dato che l'SDST $S^{m}_{ipjr}$ in (17)–(18) viene aggiunto come singolo setup. Il paper non afferma esplicitamente "immediatamente", ma la formulazione SDST standard lo richiede affinché il costo in $Q_2$ sia additivo sulle coppie consecutive.
+3. **Definizione di $X_{ipjr}^{m}$.** §2.3.2 dice "$X_{ipjr}^{m} = 1$ if $O_{ip}$ is processed before $O_{jr}$ on machine $m$". Tipicamente significa *immediatamente* prima nell'interpretazione disgiuntiva flow-shop, dato che l'SDST $S_{ipjr}^{m}$ in (17)–(18) viene aggiunto come singolo setup. Il paper non afferma esplicitamente "immediatamente", ma la formulazione SDST standard lo richiede affinché il costo in $Q_2$ sia additivo sulle coppie consecutive.
 
 4. **Ambito degli indici $r$ vs. $p$.** Sia $p$ sia $r$ vanno da $1$ a $P$ ma rappresentano indici di operazione che possono appartenere a job diversi ($i$ vs. $j$). La notazione è coerente ma leggermente compatta: $p$ è abbinato al job $i$, $r$ è abbinato al job $j$.
 
 5. **Quantificatore di $WL_m$.** L'eq (9) è scritta "$\forall m \in M_{ip}$" ma $WL_m$ è una variabile per macchina indipendente da una specifica operazione; va letto come "$\forall m \in M$" (qualsiasi macchina considerata candidata per almeno un'operazione). L'eq (10) usa il più ampio $\forall m \in M$, coerente con questa lettura.
 
-6. **Costo in $Q_2$.** Il coefficiente del costo di setup è scritto come $S^{m}_{ipjr} \cdot STC^{m}_{ipjr}$, ovvero *tempo* di setup moltiplicato per *costo per unità di tempo* di setup, moltiplicato per l'indicatore $X^{m}_{ipjr}$. Ciò integra sull'effettiva durata del setup, quindi le unità sono coerenti.
+6. **Costo in $Q_2$.** Il coefficiente del costo di setup è scritto come $S_{ipjr}^{m} \cdot STC_{ipjr}^{m}$, ovvero *tempo* di setup moltiplicato per *costo per unità di tempo* di setup, moltiplicato per l'indicatore $X_{ipjr}^{m}$. Ciò integra sull'effettiva durata del setup, quindi le unità sono coerenti.
 
-7. **Idle dell'operatore in $Q_2$.** Il primo termine $C_{\max} - \sum_{i,p,m} W^{hm}_{ip} \cdot P^{hm}_{ip}$ rappresenta il tempo idle dell'operatore $h$. Si assume implicitamente che ogni operatore sia "disponibile" per l'intero orizzonte $[0, C_{\max}]$ e paghi il costo $\text{Cost}_h$ per unità di tempo per ogni tempo non speso a processare. Il tempo di setup non è sottratto — l'operatore è considerato idle durante i setup della macchina in questo termine di costo.
+7. **Idle dell'operatore in $Q_2$.** Il primo termine $C_{\max} - \sum_{i,p,m} W_{ip}^{hm} \cdot P_{ip}^{hm}$ rappresenta il tempo idle dell'operatore $h$. Si assume implicitamente che ogni operatore sia "disponibile" per l'intero orizzonte $[0, C_{\max}]$ e paghi il costo $\text{Cost}_h$ per unità di tempo per ogni tempo non speso a processare. Il tempo di setup non è sottratto — l'operatore è considerato idle durante i setup della macchina in questo termine di costo.
 
 8. **Valore di big-$L$.** Il paper non specifica un particolare valore per $L$; in pratica dovrebbe essere almeno un upper bound sull'orizzonte di pianificazione $T$ (ad es. somma di tutti i tempi di processamento e di setup). Un valore concreto raccomandato per l'esempio piccolo è dato in §6 di questo documento.
 
@@ -331,7 +331,7 @@ Si tratta dell'istanza illustrativa della §3.2 del paper, usata come fixture pr
 
 Tutte le 8 × 6 = 48 celle (operazione, macchina, operatore) della Tabella A1 sono popolate con interi positivi, quindi nessuna combinazione (macchina, operatore) infeasibile è implicata dai dati.
 
-### 3.2 Tempi di processamento $P^{hm}_{ip}$ (Tabella A1)
+### 3.2 Tempi di processamento $P_{ip}^{hm}$ (Tabella A1)
 
 Le celle sono i tempi di processamento (in unità di tempo intere) dell'operazione `i.p` quando assegnata alla macchina M e gestita dall'operatore H.
 
@@ -381,7 +381,7 @@ JSON:
 }
 ```
 
-### 3.4 Tempi di setup dipendenti dalla sequenza $S^{m}_{ipjr}$ (Tabella A3)
+### 3.4 Tempi di setup dipendenti dalla sequenza $S_{ipjr}^{m}$ (Tabella A3)
 
 La Tabella A3 nel paper riporta tempi di setup **a livello di job** — una matrice 4 × 4 per macchina indicizzata per *job precedente* `i` e *job successivo* `j`. Riprodotta verbatim dal PDF (pagina 28), incluse le linee tratteggiate. La semantica del tratteggio è formalizzata sotto e discussa in dettaglio in §6 (Estrapolazioni).
 
@@ -439,7 +439,7 @@ Le celle diagonali (`i = j`) nel JSON sono codificate come `null`; le transizion
 }
 ```
 
-**Semantica del tratteggio (convenzione raccomandata).** Un `null` (`-` nella matrice stampata) significa *nessuna transizione consentita*: o è la cella diagonale (un job che segue se stesso su due operazioni consecutive sulla stessa macchina — caso gestito invece dalla §3.6) oppure quell'ordinamento di job su quella macchina è vietato dai dati. In forma MILP, codificare come vincolo hard di ordinamento che impedisce il corrispondente $X^{m}_{ipjr}=1$, o equivalentemente come setup time pari a $L$ (big-$M$). Si tratta di una convenzione **inferita** — vedi §6.
+**Semantica del tratteggio (convenzione raccomandata).** Un `null` (`-` nella matrice stampata) significa *nessuna transizione consentita*: o è la cella diagonale (un job che segue se stesso su due operazioni consecutive sulla stessa macchina — caso gestito invece dalla §3.6) oppure quell'ordinamento di job su quella macchina è vietato dai dati. In forma MILP, codificare come vincolo hard di ordinamento che impedisce il corrispondente $X_{ipjr}^{m}=1$, o equivalentemente come setup time pari a $L$ (big-$M$). Si tratta di una convenzione **inferita** — vedi §6.
 
 > **Nota sulle fonti.** Il file dati sorgente (`barak_round1_data.md`) e il file figure sorgente (`barak_round1_figs.md`) erano in disaccordo sulla riga J2 della Macchina 2 (cella J2→J2). Verificato sul PDF (pagina 28): il valore corretto è **3** (il file dati ha ragione; il file figure conteneva un errore di trascrizione). Le matrici sopra sono ora la versione verificata.
 
@@ -449,7 +449,7 @@ Le celle diagonali (`i = j`) nel JSON sono codificate come `null`; le transizion
 |--------------------------------------------------|----------------|---------------|
 | Costo idle dell'operatore 1 (per unità di tempo) | $\text{Cost}_1$  | \$10          |
 | Costo idle dell'operatore 2 (per unità di tempo) | $\text{Cost}_2$  | \$12          |
-| Costo di setup su ogni macchina (per unità di tempo)    | $STC^{m}_{ipjr}$ | \$10 (tutte le $m$) |
+| Costo di setup su ogni macchina (per unità di tempo)    | $STC_{ipjr}^{m}$ | \$10 (tutte le $m$) |
 
 ### 3.6 Override SDST intra-job (prosa dalla Sezione 3.2)
 
@@ -464,7 +464,7 @@ La Sezione 3.2 aggiunge esplicitamente regole per le **transizioni intra-job** (
 
 Citando il paper: *"SDSTs between two sequencing operations of job 1 and job 3 are set to '0'"* e *"for job 2 and job 4, they are set to '1' on all machines"*.
 
-Questi parametri presenti solo nella prosa **fanno override** delle celle diagonali della Tabella A3 quando le due operazioni consecutive su una macchina appartengono allo stesso job. Codificarli nel modello come $S^{m}_{i,1,i,2} = \lbrace 0, 1, 0, 1 \rbrace$ rispettivamente per i job $i = 1, 2, 3, 4$, su ogni macchina $m$.
+Questi parametri presenti solo nella prosa **fanno override** delle celle diagonali della Tabella A3 quando le due operazioni consecutive su una macchina appartengono allo stesso job. Codificarli nel modello come $S_{i,1,i,2}^{m} = \lbrace 0, 1, 0, 1 \rbrace$ rispettivamente per i job $i = 1, 2, 3, 4$, su ogni macchina $m$.
 
 ---
 
@@ -724,7 +724,7 @@ Pertanto **L = 200** è un valore arrotondato sicuro per l'esempio piccolo (ben 
 
 ### 6.2 Orizzonte temporale $T$ per $Y^{hmt}$ — INFERITO
 
-La binaria $Y^{hmt}_{ip}$ richiede un upper bound sull'indice temporale $t$. Un bound stretto è:
+La binaria $Y_{ip}^{hmt}$ richiede un upper bound sull'indice temporale $t$. Un bound stretto è:
 
 $$
 T  \geq  \max_i Du_i  +  \text{slack del processing time totale}
@@ -740,12 +740,12 @@ Se $Y^{hmt}$ è codificata con una rappresentazione sparsa (solo valori di $t$ a
 
 Il paper non descrive in legenda i tratteggi. Sono possibili due letture:
 
-1. **"Nessuna transizione consentita"** — l'ordinamento di quei due job su quella macchina è vietato dai dati; in termini MILP, forzare il corrispondente $X^{m}_{ipjr} = 0$, o equivalentemente impostare $S^{m}_{ipjr}$ a big-$L$ così che il bound disgiuntivo diventi infeasible.
+1. **"Nessuna transizione consentita"** — l'ordinamento di quei due job su quella macchina è vietato dai dati; in termini MILP, forzare il corrispondente $X_{ipjr}^{m} = 0$, o equivalentemente impostare $S_{ipjr}^{m}$ a big-$L$ così che il bound disgiuntivo diventi infeasible.
 2. **"Setup time pari a 0"** — trattare il tratteggio come uno zero numerico.
 
 Ragionamento: combinata con la prosa della §3.6 (che gestisce esplicitamente le transizioni intra-job, ovvero diagonali, con valori 0 o 1), i tratteggi off-diagonal sono naturalmente letti come **transizioni vietate** — Lettura 1. Ciò corrisponde alla convenzione della letteratura SDST (Ruiz & Stützle 2008; Naderi et al. 2009 — entrambi citati dal paper).
 
-**Codifica raccomandata in DAINO:** trattare ogni cella `null` nel JSON della §3.4 come un vincolo hard che impedisce il corrispondente $X^{m}_{ipjr} = 1$. Questo è equivalente ad assegnare a quella cella un SDST pari a big-$L$ nel bound disgiuntivo.
+**Codifica raccomandata in DAINO:** trattare ogni cella `null` nel JSON della §3.4 come un vincolo hard che impedisce il corrispondente $X_{ipjr}^{m} = 1$. Questo è equivalente ad assegnare a quella cella un SDST pari a big-$L$ nel bound disgiuntivo.
 
 **Caveat — verificare con gli autori.** Se gli autori avessero usato la Lettura 2 (tratteggio = 0), gli ottimi della §4 comunque verosimilmente coinciderebbero, perché gli schedule di riferimento del paper evitano comunque la maggior parte delle transizioni tratteggiate. Il MILP sarebbe più permissivo ma l'ottimo invariato. In ogni caso le soluzioni di riferimento della §4 sono il contratto vincolante.
 
@@ -815,9 +815,9 @@ Il paper non riporta il seed RNG usato per generare le 100 istanze. Anche con la
 Consegna questa checklist allo sviluppatore che costruisce l'input per DAINO da §3 + §6:
 
 - [ ] **Imposta gli indici.** $I = J = 4$ job, $P = 2$ op/job, $M = 3$ macchine, $H = 2$ operatori, $T = 20$ (raccomandato).
-- [ ] **Carica la Tabella A1** (§3.2) come $P^{hm}_{ip}$ — 48 celle.
+- [ ] **Carica la Tabella A1** (§3.2) come $P_{ip}^{hm}$ — 48 celle.
 - [ ] **Carica la Tabella A2** (§3.3) come $(Dl_i, Du_i, \beta_i, u_i)$ — 4 job × 4 campi.
-- [ ] **Carica la Tabella A3** (§3.4) come $S^{m}_{ipjr}$ — 3 macchine × 4 × 4 celle, con `null` = transizione vietata (codificare come vincolo MILP hard $X^{m}_{ipjr}=0$ o equivalentemente $S = L$).
+- [ ] **Carica la Tabella A3** (§3.4) come $S_{ipjr}^{m}$ — 3 macchine × 4 × 4 celle, con `null` = transizione vietata (codificare come vincolo MILP hard $X_{ipjr}^{m}=0$ o equivalentemente $S = L$).
 - [ ] **Applica gli override SDST intra-job** (§3.6): job 1 → 0, job 2 → 1, job 3 → 0, job 4 → 1, su ogni macchina.
 - [ ] **Imposta i parametri di costo** (§3.5): $\text{Cost}_1 = 10$, $\text{Cost}_2 = 12$, $STC^m = 10$ per ogni $m$.
 - [ ] **Imposta big-$L$** (§6.1): $L = 200$.
