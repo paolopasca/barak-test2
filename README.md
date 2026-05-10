@@ -299,11 +299,11 @@ I punti 1–3 e 5–7 segnalano ambiguità reali presenti nel paper; i punti 4 e
 
 2. **Quantificatori in (17) e (18).** Il paper scrive il quantificatore come $\forall i, p \in O_{ip};\ \forall j, r \in O_{jr};\ \forall t$, ma il vincolo non contiene alcun indice temporale $t$. Il $\forall t$ spurio è stato rimosso per chiarezza; trattiamo il vincolo come quantificato su coppie distinte di operazioni $(O_{ip}, O_{jr})$ che condividono almeno una macchina ammissibile.
 
-3. **Definizione di $X_{ipjr}^{m}$.** §2.3.2 dice "$X_{ipjr}^{m} = 1$ if $O_{ip}$ is processed before $O_{jr}$ on machine $m$". Tipicamente significa *immediatamente* prima nell'interpretazione disgiuntiva flow-shop, dato che l'SDST $S_{ipjr}^{m}$ in (17)–(18) viene aggiunto come singolo setup. Il paper non afferma esplicitamente "immediatamente", ma la formulazione SDST standard lo richiede affinché il costo in $Q_2$ sia additivo sulle coppie consecutive.
+3. **Definizione di $X_{ipjr}^{m}$.** §2.3.2 definisce: $X_{ipjr}^{m} = 1$ se $O_{ip}$ è processata prima di $O_{jr}$ sulla macchina $m$, $0$ altrimenti. Tipicamente significa *immediatamente* prima nell'interpretazione disgiuntiva flow-shop, dato che l'SDST $S_{ipjr}^{m}$ in (17)–(18) viene aggiunto come singolo setup. Il paper non afferma esplicitamente «immediatamente», ma la formulazione SDST standard lo richiede affinché il costo in $Q_2$ sia additivo sulle coppie consecutive.
 
 4. **Ambito degli indici $r$ vs. $p$.** Sia $p$ sia $r$ vanno da $1$ a $P$ ma rappresentano indici di operazione che possono appartenere a job diversi ($i$ vs. $j$). La notazione è coerente ma leggermente compatta: $p$ è abbinato al job $i$, $r$ è abbinato al job $j$.
 
-5. **Quantificatore di $WL_m$.** L'eq (9) è scritta "$\forall m \in M_{ip}$" ma $WL_m$ è una variabile per macchina indipendente da una specifica operazione; va letto come "$\forall m \in M$" (qualsiasi macchina considerata candidata per almeno un'operazione). L'eq (10) usa il più ampio $\forall m \in M$, coerente con questa lettura.
+5. **Quantificatore di $WL_m$.** L'eq (9) è scritta con quantificatore $\forall m \in M_{ip}$, ma $WL_m$ è una variabile per macchina indipendente da una specifica operazione; va letto come $\forall m \in M$ (qualsiasi macchina considerata candidata per almeno un'operazione). L'eq (10) usa il più ampio $\forall m \in M$, coerente con questa lettura.
 
 6. **Costo in $Q_2$.** Il coefficiente del costo di setup è scritto come $S_{ipjr}^{m} \cdot STC_{ipjr}^{m}$, ovvero *tempo* di setup moltiplicato per *costo per unità di tempo* di setup, moltiplicato per l'indicatore $X_{ipjr}^{m}$. Ciò integra sull'effettiva durata del setup, quindi le unità sono coerenti.
 
